@@ -1,10 +1,9 @@
 module RailsEmailPreview::EmailsHelper
-  def current_email_name
-    "#{preview_class_human_name}: #{@mail_action.to_s.humanize}"
-  end
 
-  def preview_class_human_name(preview_class = @preview_class)
-    preview_class.to_s.underscore.sub(/(_mailer)?_preview$/, '').humanize
+  MIME_LABELS = { 'text/html' => 'HTML', 'text/plain' => 'Text', 'raw' => 'Raw'}
+
+  def format_label(mime_type)
+    MIME_LABELS[mime_type]
   end
 
   def change_locale_attr(locale)
@@ -25,15 +24,23 @@ module RailsEmailPreview::EmailsHelper
     end
   end
 
+  def attachment_links
+    @mail.attachments.map do |attachment|
+      url = rails_email_preview.rep_raw_email_attachment_path(params[:preview_id], attachment.filename)
+      link_to(attachment.filename, url)
+    end.join('').html_safe
+  end
+
   def headers_name_value
     I18n.with_locale @email_locale do
       {
-          'Subject'  => @mail.subject || '(no subject)',
-          'From'     => @mail.from,
-          'Reply to' => @mail.reply_to,
-          'To'       => @mail.to,
-          'CC'       => @mail.cc,
-          'BCC'      => @mail.bcc
+          'Subject'     => @mail.subject || '(no subject)',
+          'From'        => @mail.from,
+          'Reply to'    => @mail.reply_to,
+          'To'          => @mail.to,
+          'CC'          => @mail.cc,
+          'BCC'         => @mail.bcc,
+          'Attachments' => attachment_links
       }.delete_if { |k, v| v.blank? }
     end
   end
@@ -44,14 +51,6 @@ module RailsEmailPreview::EmailsHelper
     else
       value.to_s
     end
-  end
-
-  def email_methods(m)
-    m.constantize.instance_methods(false).map(&:to_s).sort
-  end
-
-  def total_emails
-    @total_emails ||= @preview_class_names.sum { |p| email_methods(p).length }
   end
 
   def split_in_halves(elements, &weight)

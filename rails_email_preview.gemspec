@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.license = 'MIT'
 
   s.summary = 'Preview emails in browser (rails engine)'
-  s.description = 'Rails engine to preview, test send, and edit application email in browser. i18n support, premailer integration, and more.'
+  s.description = 'A Rails Engine to preview plain text and html email in your browser. Compatible with Rails 3 and 4.'
 
 
   s.files = Dir['{app,lib,config}/**/*'] + ['MIT-LICENSE', 'Rakefile', 'Gemfile', 'README.md']
@@ -19,6 +19,12 @@ Gem::Specification.new do |s|
   s.add_dependency 'sass-rails'
   s.add_dependency 'turbolinks'
   s.add_dependency 'request_store'
+
+  s.add_development_dependency 'i18n-tasks', '>= 0.3.7'
+  s.add_development_dependency 'capybara', '>= 0.4.0'
+  s.add_development_dependency 'rspec', '>= 2.12.0'
+  s.add_development_dependency 'rspec-rails'
+  s.add_development_dependency 'poltergeist'
 
   s.version = RailsEmailPreview::VERSION
 end

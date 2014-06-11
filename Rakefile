@@ -6,8 +6,10 @@ rescue LoadError
 end
 
 # Load dummy app tasks
-APP_RAKEFILE = File.expand_path('../spec/dummy/Rakefile', __FILE__)
-load 'rails/tasks/engine.rake'
+if ENV['DUMMY']
+  APP_RAKEFILE = File.expand_path('../spec/dummy/Rakefile', __FILE__)
+  load 'rails/tasks/engine.rake'
+end
 
 Bundler::GemHelper.install_tasks
 

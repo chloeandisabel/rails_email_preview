@@ -1,3 +1,25 @@
+## v0.2.20
+
+* REP will fall back to :en if its set locale is not in the list of available locales
+
+## v0.2.19
+
+* Fixes for CMS integration
+
+## v0.2.18
+
+* UI language is now set to :en by default, to avoid #32
+* Rails 3 compatibility issues fixed
+
+## v0.2.17
+
+* Fix preview generator
+
+## v0.2.15 .. v0.2.16
+
+* minor bugfixes
+* UI improvements
+
 ## v0.2.13 .. v0.2.14
 
 * clean up dependencies

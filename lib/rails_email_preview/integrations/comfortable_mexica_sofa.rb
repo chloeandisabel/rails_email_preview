@@ -49,6 +49,15 @@ module RailsEmailPreview
         end
       end
 
+      def cms_snippet_render_method
+        [
+            # Newer CMS
+            :cms_snippet_render,
+            # Older CMS
+            :cms_snippet_content
+        ].detect { |m| respond_to? m }
+      end
+
       # Will return snippet content, passing through Kramdown
       # Will also render an "✎ Edit text" link if used from
       def cms_email_snippet(snippet_id = self.cms_email_id)
@@ -56,9 +65,10 @@ module RailsEmailPreview
         site       = Cms::Site.find_by_locale(I18n.locale.to_s)
         if Cms::Snippet.where(identifier: snippet_id).exists?
           # Fallback default locale: (# prefill)
-          unless (content = cms_snippet_content(snippet_id, site).presence)
+          content = send(cms_snippet_render_method, snippet_id, site)
+          unless content.present?
             default_site     = Cms::Site.find_by_locale(I18n.default_locale.to_s)
-            fallback_content = cms_snippet_content(snippet_id, default_site).presence
+            fallback_content = send(cms_snippet_render_method, snippet_id, default_site).presence
           end
           result = (content || fallback_content).to_s
         else
@@ -100,12 +110,10 @@ module RailsEmailPreview
       def self.rep_email_params_from_snippet(snippet)
         id_prefix = 'email-'
         return unless snippet && snippet.identifier && snippet.identifier.starts_with?(id_prefix)
-        mailer_cl, act, part_type = snippet.identifier[id_prefix.length..-1].split('-')
-
+        mailer_cl, act = snippet.identifier[id_prefix.length..-1].split('-')
         part_type = part_type == 'text' ? 'text/plain' : part_type
-        mailer_cl += '_preview'
-        { mail_class: mailer_cl,
-          mail_action: act,
+        act.sub! /_email\Z/, ''
+        { preview_id: "#{mailer_cl}_preview-#{act}",
           email_locale: snippet.site.locale,
           part_type: part_type }
       end
