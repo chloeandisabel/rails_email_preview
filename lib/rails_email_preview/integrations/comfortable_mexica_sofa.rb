@@ -17,9 +17,9 @@ module RailsEmailPreview
       #      cms_email_subject(name: "Alice") #=> "Welcome, Alice!"
       def cms_email_subject(interpolation = {})
         snippet_id = "email-#{cms_email_id}"
-        return '(no subject)' unless Cms::Snippet.where(identifier: snippet_id).exists?
+        return '(no subject)' unless Comfy::Cms::Snippet.where(identifier: snippet_id).exists?
         [I18n.locale, I18n.default_locale].compact.each do |locale|
-          site    = Cms::Site.find_by_locale(locale.to_s)
+          site    = Comfy::Cms::Site.find_by_locale(locale.to_s)
           snippet = site.snippets.find_by_identifier(snippet_id)
           next unless snippet.try(:content).present?
 
@@ -62,12 +62,12 @@ module RailsEmailPreview
       # Will also render an "✎ Edit text" link if used from
       def cms_email_snippet(snippet_id = self.cms_email_id)
         snippet_id = "email-#{snippet_id}"
-        site       = Cms::Site.find_by_locale(I18n.locale.to_s)
-        if Cms::Snippet.where(identifier: snippet_id).exists?
+        site       = Comfy::Cms::Site.find_by_locale(I18n.locale.to_s)
+        if Comfy::Cms::Snippet.where(identifier: snippet_id).exists?
           # Fallback default locale: (# prefill)
           content = send(cms_snippet_render_method, snippet_id, site)
           unless content.present?
-            default_site     = Cms::Site.find_by_locale(I18n.default_locale.to_s)
+            default_site     = Comfy::Cms::Site.find_by_locale(I18n.default_locale.to_s)
             fallback_content = send(cms_snippet_render_method, snippet_id, default_site).presence
           end
           result = (content || fallback_content).to_s
